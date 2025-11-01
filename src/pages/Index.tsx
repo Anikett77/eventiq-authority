@@ -180,6 +180,38 @@ const notifications = [
   { id: 4, type: "success", message: "Startup Competition approved successfully", time: "1 day ago", unread: false },
 ];
 
+// AI Recommendations Mock Data
+const aiRecommendations = {
+  dashboard: [
+    { title: "AI & ML Workshop Series", description: "Recommended based on 37% increase in tech interest this week" },
+    { title: "Weekend Hybrid Events", description: "Students show 34% higher attendance on weekends" },
+    { title: "Professional Development Seminars", description: "Evening slots show strong engagement for career-focused events" },
+    { title: "Sustainability Initiative", description: "Growing interest in environmental topics, 12% monthly increase" },
+  ],
+  events: [
+    { title: "Blockchain Technology Meetup", description: "Similar audience to AI Workshop attendees" },
+    { title: "Design Thinking Sprint", description: "Complements current creative arts engagement" },
+    { title: "Startup Networking Evening", description: "High predicted turnout based on business category trends" },
+  ],
+  proposals: [
+    { title: "Approve Robotics Symposium", description: "89% alignment score with student interests in engineering" },
+    { title: "Request Additional Details", description: "Green Campus Workshop needs venue capacity confirmation" },
+    { title: "Expedite Tech Events", description: "Fast-track technology proposals due to high demand" },
+    { title: "Weekend Scheduling", description: "Consider scheduling hybrid events for Saturday afternoons" },
+  ],
+  analytics: [
+    { title: "Increase Tech Event Capacity", description: "Demand exceeding supply by 23% in technology category" },
+    { title: "Promote Evening Sessions", description: "7-9 PM slots showing 18% better engagement" },
+    { title: "Hybrid Format Priority", description: "67% of students prefer hybrid over in-person only" },
+    { title: "Partner with Top Organizers", description: "Tech Club and Business Society have 95% success rate" },
+  ],
+  eventDetail: [
+    { title: "Similar AI/ML Events", description: "Data Science Bootcamp and Neural Networks Workshop" },
+    { title: "Follow-up Sessions", description: "Consider advanced workshops for engaged participants" },
+    { title: "Cross-promote", description: "Notify attendees about upcoming Robotics Symposium" },
+  ],
+};
+
 const Index = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -398,6 +430,26 @@ const Index = () => {
           <Sparkles size={14} className="mr-1" />
           AI Summary
         </Button>
+      </div>
+    </motion.div>
+  );
+
+  const RecommendationCard = ({ recommendation }: any) => (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ x: 5 }}
+      className="glass p-4 rounded-xl border border-accent/20 hover:border-accent/40 transition-all cursor-pointer"
+    >
+      <div className="flex items-start gap-3">
+        <div className="p-2 rounded-lg bg-accent/20 shrink-0">
+          <Sparkles size={16} className="text-accent" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-sm mb-1 line-clamp-1">{recommendation.title}</h4>
+          <p className="text-xs text-muted-foreground line-clamp-2">{recommendation.description}</p>
+        </div>
+        <ChevronRight size={16} className="text-muted-foreground shrink-0" />
       </div>
     </motion.div>
   );
@@ -629,6 +681,18 @@ const Index = () => {
                   </div>
 
                   <Card className="glass p-6 rounded-2xl shadow-glass">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="text-accent" size={20} />
+                      AI Recommendations
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {aiRecommendations.dashboard.map((rec, idx) => (
+                        <RecommendationCard key={idx} recommendation={rec} />
+                      ))}
+                    </div>
+                  </Card>
+
+                  <Card className="glass p-6 rounded-2xl shadow-glass">
                     <h3 className="text-lg font-semibold mb-4">Category Popularity Distribution</h3>
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
@@ -708,6 +772,18 @@ const Index = () => {
                       <EventCard key={event.id} event={event} />
                     ))}
                   </div>
+
+                  <Card className="glass p-6 rounded-2xl shadow-glass mt-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="text-accent" size={20} />
+                      AI Recommendations
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {aiRecommendations.events.map((rec, idx) => (
+                        <RecommendationCard key={idx} recommendation={rec} />
+                      ))}
+                    </div>
+                  </Card>
                 </motion.div>
               )}
 
@@ -733,6 +809,18 @@ const Index = () => {
                       <ProposalCard key={proposal.id} proposal={proposal} />
                     ))}
                   </div>
+
+                  <Card className="glass p-6 rounded-2xl shadow-glass mt-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="text-accent" size={20} />
+                      AI Recommendations
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {aiRecommendations.proposals.map((rec, idx) => (
+                        <RecommendationCard key={idx} recommendation={rec} />
+                      ))}
+                    </div>
+                  </Card>
                 </motion.div>
               )}
 
@@ -829,6 +917,18 @@ const Index = () => {
                         />
                       </LineChart>
                     </ResponsiveContainer>
+                  </Card>
+
+                  <Card className="glass p-6 rounded-2xl shadow-glass">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="text-accent" size={20} />
+                      AI Recommendations
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {aiRecommendations.analytics.map((rec, idx) => (
+                        <RecommendationCard key={idx} recommendation={rec} />
+                      ))}
+                    </div>
                   </Card>
                 </motion.div>
               )}
@@ -1037,6 +1137,18 @@ const Index = () => {
                 Predicted attendance rate: 94%. Recommend highlighting similar future events.
               </p>
             </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <Sparkles size={16} className="text-accent" />
+                AI Recommendations
+              </h4>
+              <div className="space-y-2">
+                {aiRecommendations.eventDetail.map((rec, idx) => (
+                  <RecommendationCard key={idx} recommendation={rec} />
+                ))}
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -1093,6 +1205,17 @@ const Index = () => {
           <div className="space-y-4">
             <div className="p-4 rounded-xl bg-accent/10 border border-accent/30">
               <pre className="text-sm whitespace-pre-wrap text-foreground">{aiInsight}</pre>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+                Related Recommendations
+              </h4>
+              <div className="space-y-2">
+                {aiRecommendations.proposals.slice(0, 3).map((rec, idx) => (
+                  <RecommendationCard key={idx} recommendation={rec} />
+                ))}
+              </div>
             </div>
 
             <Button className="w-full bg-accent hover:bg-accent/90" onClick={() => setShowAiModal(false)}>
