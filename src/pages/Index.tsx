@@ -200,16 +200,63 @@ const aiRecommendations = {
     { title: "Weekend Scheduling", description: "Consider scheduling hybrid events for Saturday afternoons" },
   ],
   analytics: [
-    { title: "Increase Tech Event Capacity", description: "Demand exceeding supply by 23% in technology category" },
-    { title: "Promote Evening Sessions", description: "7-9 PM slots showing 18% better engagement" },
-    { title: "Hybrid Format Priority", description: "67% of students prefer hybrid over in-person only" },
-    { title: "Partner with Top Organizers", description: "Tech Club and Business Society have 95% success rate" },
+    { 
+      title: "Organize more workshops in AI & ML", 
+      description: "Engagement up 30% this month — highest performing category",
+      trend: "+30%",
+      priority: "high"
+    },
+    { 
+      title: "Peak registration occurs between 10 AM and 2 PM", 
+      description: "Schedule events accordingly for maximum sign-ups",
+      trend: "67%",
+      priority: "medium"
+    },
+    { 
+      title: "Low engagement in webinars", 
+      description: "Try switching to hybrid sessions — 45% better attendance rate",
+      trend: "-22%",
+      priority: "high"
+    },
+    { 
+      title: "Weekend events drive 34% higher attendance", 
+      description: "Saturday afternoons show best performance",
+      trend: "+34%",
+      priority: "medium"
+    },
+    { 
+      title: "Partner with Tech Club for co-hosting", 
+      description: "Their events have 95% average attendance rate",
+      trend: "95%",
+      priority: "low"
+    },
   ],
   eventDetail: [
     { title: "Similar AI/ML Events", description: "Data Science Bootcamp and Neural Networks Workshop" },
     { title: "Follow-up Sessions", description: "Consider advanced workshops for engaged participants" },
     { title: "Cross-promote", description: "Notify attendees about upcoming Robotics Symposium" },
   ],
+};
+
+// AI Engagement Predictions Mock Data
+const engagementPredictions = {
+  currentMonth: {
+    predicted: 82,
+    change: 15,
+    growth: 120,
+    confidence: 94
+  },
+  weeklyTrends: [
+    { week: "Week 1", engagement: 68 },
+    { week: "Week 2", engagement: 72 },
+    { week: "Week 3", engagement: 78 },
+    { week: "Week 4", engagement: 82 },
+  ],
+  insights: [
+    "Consider promoting events earlier in the week for higher turnout",
+    "Hybrid format events show 45% better engagement than webinars",
+    "Evening slots (6-8 PM) have 28% higher attendance rate",
+  ]
 };
 
 const Index = () => {
@@ -452,6 +499,136 @@ const Index = () => {
         <ChevronRight size={16} className="text-muted-foreground shrink-0" />
       </div>
     </motion.div>
+  );
+
+  const AIRecommendationCard = ({ recommendation }: any) => {
+    const getPriorityColor = (priority: string) => {
+      switch (priority) {
+        case "high": return "bg-error/10 border-error/30 text-error";
+        case "medium": return "bg-warning/10 border-warning/30 text-warning";
+        case "low": return "bg-accent/10 border-accent/30 text-accent";
+        default: return "bg-accent/10 border-accent/30 text-accent";
+      }
+    };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.02 }}
+        className={`glass p-5 rounded-xl border ${getPriorityColor(recommendation.priority)} transition-all`}
+      >
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-accent/20 shrink-0">
+              <TrendingUp size={18} className="text-accent" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-sm mb-1">{recommendation.title}</h4>
+              <p className="text-xs text-muted-foreground">{recommendation.description}</p>
+            </div>
+          </div>
+          <Badge className="bg-accent/20 text-accent-foreground shrink-0 ml-2">
+            {recommendation.trend}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className={`font-medium ${
+            recommendation.priority === "high" ? "text-error" :
+            recommendation.priority === "medium" ? "text-warning" : "text-accent"
+          }`}>
+            {recommendation.priority.toUpperCase()} PRIORITY
+          </span>
+        </div>
+      </motion.div>
+    );
+  };
+
+  const AIEngagementPredictor = () => (
+    <Card className="glass p-6 rounded-2xl shadow-glass">
+      <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+        <Zap className="text-accent" size={20} />
+        AI Engagement Predictor
+      </h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="glass p-4 rounded-xl text-center border border-accent/20">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Activity size={16} className="text-accent" />
+            <span className="text-xs text-muted-foreground">Predicted Engagement</span>
+          </div>
+          <div className="flex items-baseline justify-center gap-2">
+            <p className="text-3xl font-bold text-accent">{engagementPredictions.currentMonth.predicted}%</p>
+            <Badge className="bg-success/20 text-success-foreground">
+              <TrendingUp size={12} className="mr-1" />
+              +{engagementPredictions.currentMonth.change}%
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">from last month</p>
+        </div>
+
+        <div className="glass p-4 rounded-xl text-center border border-warning/20">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Users size={16} className="text-warning" />
+            <span className="text-xs text-muted-foreground">Expected Growth</span>
+          </div>
+          <p className="text-3xl font-bold text-warning">+{engagementPredictions.currentMonth.growth}</p>
+          <p className="text-xs text-muted-foreground mt-2">users next week</p>
+        </div>
+
+        <div className="glass p-4 rounded-xl text-center border border-primary/20">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Award size={16} className="text-primary" />
+            <span className="text-xs text-muted-foreground">AI Confidence</span>
+          </div>
+          <p className="text-3xl font-bold text-primary">{engagementPredictions.currentMonth.confidence}%</p>
+          <p className="text-xs text-muted-foreground mt-2">prediction accuracy</p>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <TrendingUp size={16} className="text-accent" />
+          Weekly Engagement Trend
+        </h4>
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={engagementPredictions.weeklyTrends}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+            <XAxis dataKey="week" stroke="currentColor" fontSize={12} />
+            <YAxis stroke="currentColor" fontSize={12} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "rgba(0,0,0,0.8)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "12px",
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="engagement"
+              stroke="#76FF03"
+              strokeWidth={3}
+              dot={{ fill: "#76FF03", r: 5 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold flex items-center gap-2">
+          <Sparkles size={16} className="text-accent" />
+          AI Insights & Suggestions
+        </h4>
+        {engagementPredictions.insights.map((insight, idx) => (
+          <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-accent/5 border border-accent/20">
+            <div className="p-1.5 rounded-lg bg-accent/20 shrink-0 mt-0.5">
+              <Sparkles size={14} className="text-accent" />
+            </div>
+            <p className="text-sm text-foreground">{insight}</p>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 
   return (
@@ -834,6 +1011,9 @@ const Index = () => {
                 >
                   <h2 className="text-3xl font-bold">Analytics & Insights</h2>
 
+                  {/* AI Engagement Predictor - Featured at Top */}
+                  <AIEngagementPredictor />
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card className="glass p-6 rounded-2xl shadow-glass">
                       <h3 className="text-lg font-semibold mb-4">Top Performing Organizers</h3>
@@ -919,14 +1099,20 @@ const Index = () => {
                     </ResponsiveContainer>
                   </Card>
 
+                  {/* AI Recommendations Section - Enhanced */}
                   <Card className="glass p-6 rounded-2xl shadow-glass">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Sparkles className="text-accent" size={20} />
-                      AI Recommendations
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <Sparkles className="text-accent" size={20} />
+                        AI Recommendations
+                      </h3>
+                      <Badge className="bg-accent/20 text-accent-foreground">
+                        Based on Analytics Data
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {aiRecommendations.analytics.map((rec, idx) => (
-                        <RecommendationCard key={idx} recommendation={rec} />
+                        <AIRecommendationCard key={idx} recommendation={rec} />
                       ))}
                     </div>
                   </Card>
