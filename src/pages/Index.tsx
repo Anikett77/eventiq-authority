@@ -27,6 +27,8 @@ import {
   Sun,
   Moon,
   Palette,
+  Send,
+  Bot,
 } from "lucide-react";
 import {
   BarChart,
@@ -62,6 +64,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
 // Mock Data
@@ -273,6 +276,12 @@ const Index = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [aiInsight, setAiInsight] = useState("");
   const [showAiModal, setShowAiModal] = useState(false);
+  
+  // Chat state
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
 
   const filteredEvents = events.filter((event) => {
     const matchesCategory = filterCategory === "all" || event.category === filterCategory;
@@ -307,6 +316,54 @@ const Index = () => {
     ];
     setAiInsight(insights.join("\n\n"));
     setShowAiModal(true);
+  };
+
+  // API Integration for Chatbot
+  const sendMessageToAPI = async (message: string) => {
+    try {
+      const response = await fetch('https://api.example.com/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message,
+          conversationId: '8d800915-6d5d-495d-9d93-7568583d8e56',
+        })
+      });
+      
+      const data = await response.json();
+      return data.response || "I'm here to help! Ask me about event predictions, trends, or recommendations.";
+    } catch (error) {
+      console.error('API Error:', error);
+      return "Sorry, I'm having trouble connecting right now. Please try again in a moment.";
+    }
+  };
+
+  const handleSendMessage = async (message?: string) => {
+    const messageToSend = message || chatInput.trim();
+    if (!messageToSend) return;
+
+    // Add user message
+    const newMessages = [...chatMessages, { role: 'user' as const, content: messageToSend }];
+    setChatMessages(newMessages);
+    setChatInput("");
+    setIsLoadingResponse(true);
+
+    try {
+      // Get AI response
+      const aiResponse = await sendMessageToAPI(messageToSend);
+      setChatMessages([...newMessages, { role: 'assistant' as const, content: aiResponse }]);
+    } catch (error) {
+      toast.error("Failed to get AI response. Please try again.");
+    } finally {
+      setIsLoadingResponse(false);
+    }
+  };
+
+  const openChatWithPrompt = (prompt: string) => {
+    setIsChatOpen(true);
+    setChatInput(prompt);
   };
 
   const SidebarLink = ({ icon: Icon, label, section }: any) => (
@@ -680,15 +737,38 @@ const Index = () => {
             </div>
             {sidebarOpen && (
               <div className="space-y-2">
-                <Button size="sm" variant="outline" className="w-full justify-start text-xs">
+                <Button 
+                  size="sm" 
+                  className="w-full justify-start text-xs bg-accent hover:bg-accent/90"
+                  onClick={() => setIsChatOpen(true)}
+                >
+                  <MessageSquare size={12} className="mr-1" />
+                  Open Chat
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full justify-start text-xs"
+                  onClick={() => openChatWithPrompt("Predict engagement for upcoming events based on current trends.")}
+                >
                   <Zap size={12} className="mr-1" />
                   Predict Engagement
                 </Button>
-                <Button size="sm" variant="outline" className="w-full justify-start text-xs">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full justify-start text-xs"
+                  onClick={() => openChatWithPrompt("Give me a comprehensive trend summary for this month's events.")}
+                >
                   <TrendingUp size={12} className="mr-1" />
                   Trend Summary
                 </Button>
-                <Button size="sm" variant="outline" className="w-full justify-start text-xs">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full justify-start text-xs"
+                  onClick={() => openChatWithPrompt("Show me the top 3 performing events and analyze what made them successful.")}
+                >
                   <Award size={12} className="mr-1" />
                   Top Events
                 </Button>
@@ -696,6 +776,144 @@ const Index = () => {
             )}
           </div>
         </motion.aside>
+
+        {/* AI Chat Modal */}
+        <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+          <DialogContent className="max-w-2xl h-[600px] flex flex-col p-0 gap-0">
+            <DialogHeader className="p-6 pb-4 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-accent/20">
+                  <Bot size={24} className="text-accent" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl">AI Assistant Chat</DialogTitle>
+                  <DialogDescription>
+                    Ask me anything about events, analytics, or get predictions
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <ScrollArea className="flex-1 p-6">
+              <div className="space-y-4">
+                {chatMessages.length === 0 && (
+                  <div className="text-center py-12">
+                    <div className="inline-flex p-4 rounded-2xl bg-accent/10 mb-4">
+                      <Sparkles size={32} className="text-accent" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Welcome to AI Assistant!</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      I can help you with event predictions, trend analysis, and recommendations.
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 max-w-md mx-auto">
+                      <Button
+                        variant="outline"
+                        className="justify-start text-xs"
+                        onClick={() => handleSendMessage("What's the predicted engagement for next week?")}
+                      >
+                        <Zap size={12} className="mr-2" />
+                        What's the predicted engagement for next week?
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="justify-start text-xs"
+                        onClick={() => handleSendMessage("Analyze current event trends")}
+                      >
+                        <TrendingUp size={12} className="mr-2" />
+                        Analyze current event trends
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="justify-start text-xs"
+                        onClick={() => handleSendMessage("Which events should I promote?")}
+                      >
+                        <Award size={12} className="mr-2" />
+                        Which events should I promote?
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {chatMessages.map((msg, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {msg.role === 'assistant' && (
+                      <div className="p-2 rounded-xl bg-accent/20 h-fit">
+                        <Bot size={20} className="text-accent" />
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[70%] p-4 rounded-2xl ${
+                        msg.role === 'user'
+                          ? 'bg-accent text-accent-foreground'
+                          : 'glass border border-border/50'
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                    {msg.role === 'user' && (
+                      <div className="p-2 rounded-xl bg-primary/20 h-fit">
+                        <User size={20} className="text-primary" />
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+
+                {isLoadingResponse && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex gap-3 justify-start"
+                  >
+                    <div className="p-2 rounded-xl bg-accent/20 h-fit">
+                      <Bot size={20} className="text-accent" />
+                    </div>
+                    <div className="glass border border-border/50 p-4 rounded-2xl">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </ScrollArea>
+
+            <div className="p-6 pt-4 border-t border-border/50">
+              <div className="flex gap-2">
+                <Textarea
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  placeholder="Ask me anything about your events..."
+                  className="min-h-[60px] resize-none"
+                  disabled={isLoadingResponse}
+                />
+                <Button
+                  onClick={() => handleSendMessage()}
+                  disabled={!chatInput.trim() || isLoadingResponse}
+                  className="self-end bg-accent hover:bg-accent/90"
+                  size="icon"
+                >
+                  <Send size={18} />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Press Enter to send • Shift+Enter for new line
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
